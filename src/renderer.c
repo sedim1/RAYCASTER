@@ -1,0 +1,214 @@
+#include "renderer.h"
+
+SDL_Renderer* renderer = NULL;
+extern Player player;
+
+void pixel(int x,int y, RGB* color){
+	if (x < 0 || x >= SW || y < 0 || y >= SH) return;
+	SDL_Rect pix = {x*PIXELSCALE,y*PIXELSCALE,PIXELSCALE,PIXELSCALE};
+	SDL_SetRenderDrawColor(renderer,color->r,color->g,color->b,255);
+	SDL_RenderFillRect(renderer,&pix);
+}
+
+void pixelDDA(int x,int y, RGB* color){
+	if (x < 0 || x >= SCREEN_WIDTH || y < 0 || y >= SCREEN_HEIGHT) return;
+	SDL_SetRenderDrawColor(renderer,color->r,color->g,color->b,255);
+	SDL_RenderDrawPoint(renderer,x,y);
+}
+
+
+void DDA(int x1,int y1,int x2,int y2,RGB* color){
+	int dx = x2 - x1, dy = y2 - y1;
+	int steps = abs(dx) > abs(dy) ? abs(dx) : abs(dy);
+	float xo = dx/(float)steps, yo = dy/(float)steps;
+	float x = (float)x1, y = (float)y1;
+	for(int i = 0; i < steps; i++){
+		pixel((int)x,(int)y,color);
+		x += xo; y += yo;
+	}
+}
+////////////////////////////
+void DrawMap2D(Map2D* m){
+	for(int y = 0; y < m->mapHeight;y++){
+		for(int x = 0; x < m->mapWidth; x++ ){
+			SDL_Rect rect = {x*m->mapS/4,y*m->mapS/4,m->mapS/4,m->mapS/4};
+			if(m->map[y][x] > 0){//Dibuja el muro
+				SDL_SetRenderDrawColor(renderer,255,255,255,255);
+			}
+			else{
+				SDL_SetRenderDrawColor(renderer,255/2,255/2,255/2,255);
+			}
+			SDL_RenderFillRect(renderer,&rect);
+		}
+	}
+}
+
+void DrawPlayer(){
+	RGB c1 = {255,255,0};
+	SDL_Rect p = {player.x/4,player.y/4,PIXELSCALE,PIXELSCALE};
+	SDL_SetRenderDrawColor(renderer,c1.r,c1.g,c1.b,255);
+	SDL_RenderFillRect(renderer,&p);
+	SDL_RenderDrawLine(renderer,player.x/4 + PIXELSCALE/2,player.y/4 + PIXELSCALE/2,(player.x+player.dx*20)/4 + PIXELSCALE/2,(player.y+player.dy*20)/4 + PIXELSCALE/2);
+}
+
+void castRays(Map2D* m){
+	RGB color = {255,0,0};
+	float ra = normalizeAngle(player.a - (FOV/2)); float rx, ry,hrx, hry, vrx,vry,xo, yo;
+	int dof =0; int r = 0;
+	float dist = 0.0f;
+	bool hasBegun = false; int lastTopY, lastBottomY;
+	for(r = 0; r < SW; r+=1){
+		//Lineas horizontales
+		float distH = 10000.0f;
+		float ra = normalizeAngle(player.a - FOV / 2 + ((float)r / SW) * FOV);
+		dof = 0;
+		hrx = player.x; hry = player.y;
+		if(ra == 0.0f || ra == 180.0f){ ra += 0.01f; ra = normalizeAngle(ra); }
+		if(ra > 180.0f){ 
+			hry = (int)((player.y/m->mapS))*m->mapS - 0.0001f; hrx =  player.x - (player.y-hry)/tan(degToRad(ra));
+			yo = -m->mapS; xo = -m->mapS/tan(degToRad(ra)); 
+		}
+		if(ra < 180.0f){ 
+			hry = (int)((player.y/m->mapS))*m->mapS + m->mapS; hrx =  player.x - (player.y-hry)/tan(degToRad(ra));
+			yo = m->mapS; xo = m->mapS/tan(degToRad(ra)); 
+		}
+		while(dof < DOF){
+			//posicion actual del rayo en el mapa
+			int mapX = (int)(hrx/m->mapS); int mapY = (int)(hry/m->mapS);
+			if(mapX >= 0 && mapX < m->mapWidth && mapY >= 0 && mapY < m->mapHeight){//Muro detectado
+				if(m->map[mapY][mapX] > 0){
+					dof = DOF; distH = distance(player.x,player.y,hrx,hry);
+				}
+				else{
+					hrx += xo;
+					hry += yo;
+					dof+=1;
+				}
+			}
+			else{
+				hrx += xo;
+				hry += yo;
+				dof+=1;
+			}
+		}
+		//Lineas verticales
+		float distV = 10000.0f;
+		dof = 0;
+		vrx = player.x; vry = player.y;
+		if(ra == 90.0f || ra == 270.0f){ ra += 0.0001f; ra = normalizeAngle(ra);}
+		if(ra > 90.0f && ra < 270.0f){ //Izquerda
+			vrx = (int)((player.x/m->mapS))*m->mapS - 0.0001f; vry =  player.y - (player.x-vrx)*tan(degToRad(ra));
+			xo = -m->mapS; yo = -m->mapS*tan(degToRad(ra)); 
+		}
+		if(ra < 90.0f || ra > 270.0f){ //derecha
+			vrx = (int)((player.x/m->mapS))*m->mapS + m->mapS; vry =  player.y - (player.x-vrx)*tan(degToRad(ra));
+			xo = m->mapS; yo = m->mapS*tan(degToRad(ra)); 
+		}
+		while(dof < DOF){
+			//posicion actual del rayo en el mapa
+			int mapX = (int)(vrx/m->mapS); int mapY = (int)(vry/m->mapS);
+			if(mapX >= 0 && mapX < m->mapWidth && mapY >= 0 && mapY < m->mapHeight){//Muro detectado
+				if(m->map[mapY][mapX] > 0){
+					dof = DOF; distV = distance(player.x,player.y,vrx,vry);
+				}
+				else{
+					vrx += xo;
+					vry += yo;
+					dof+=1;
+				}
+			}
+			else{
+				vrx += xo;
+				vry += yo;
+				dof+=1;
+			}
+
+		}
+		if(distV < distH ){
+			rx = vrx; ry = vry; dist = distV;
+			color.r = 255;
+		}
+		else if (distH < distV){
+			rx = hrx; ry = hry; dist = distH;
+			color.r = 255 * 0.5;
+		}
+		dist = dist * cos(degToRad(player.a-ra));
+		float lineHeight = 64/dist * distFromProjectionPlane;
+		int yStart = - lineHeight / 2 + SH / 2;
+		int yEnd = lineHeight / 2 + SH / 2;
+		for(int y = yStart; y < yEnd; y++){
+			pixel(r,y,&color);
+		}
+
+	}
+}
+
+void castRaysDDA(Map2D* m){
+	for(int x = 0; x < SW; x++){
+		float cameraX = 2 * x / (float)(SW) - 1.0f;
+		float rayDirX = (player.dx + player.planeX * cameraX) + 0.000001f;
+		float rayDirY = (player.dy + player.planeY * cameraX) + 0.000001f;
+		//which box of the map we're in
+		int mapX = (int)(player.x/m->mapS);
+		int mapY = (int)(player.y/m->mapS);
+		float sideDistX, sideDistY,deltaDistX,deltaDistY;
+		deltaDistX = (rayDirX == 0) ? 0.0001f : fabsf(1/rayDirX);
+		deltaDistY = (rayDirY == 0) ? 0.0001f : fabsf(1/rayDirY);
+		float perspDistWall;
+		int stepX, stepY;
+		bool hit = false;
+		int side;
+		float playerTileX = player.x /m->mapS;
+		float playerTileY = player.y / m->mapS;
+		//calculate step and initial sideDist
+		if (rayDirX < 0)
+		{
+			stepX = -1;
+			sideDistX = (playerTileX - mapX) * deltaDistX;
+		}
+		else
+		{
+			stepX = 1;
+			sideDistX = (mapX + 1.0 - playerTileX) * deltaDistX;
+		}
+	        if (rayDirY < 0)
+		{
+			stepY = -1;
+			sideDistY = (playerTileY - mapY) * deltaDistY;
+		}
+		else
+		{
+			stepY = 1;
+			sideDistY = (mapY + 1.0 - playerTileY) * deltaDistY;
+		}
+		int dof = 0;
+		while(hit == false){
+			if(sideDistX < sideDistY){
+				sideDistX += deltaDistX;
+				mapX += stepX;
+				side = 0;
+			}
+			else{
+				sideDistY += deltaDistY;
+				mapY += stepY;
+				side = 1;
+			}
+			if(mapX >= 0 && mapX < m->mapWidth && mapY >= 0 && mapY < m->mapHeight){
+				if(m->map[mapY][mapX] > 0){ hit = true; }
+			}
+			else
+			{hit = true;}
+		}
+		perspDistWall = (side == 0) ? (sideDistX - deltaDistX) : (sideDistY - deltaDistY);
+		int lineHeight = (int)(SH/perspDistWall);
+		int drawStart = -lineHeight / 2 + SH / 2;
+		if(drawStart < 0)drawStart = 0;
+		int drawEnd = lineHeight / 2 + SH / 2;
+		if(drawEnd >= SH)drawEnd = SH - 1;
+		RGB color = {255,0,0};
+		color.r = (side==1) ? 255 : 255 * 0.5;
+		for(int y = drawStart; y < drawEnd; y++){
+			pixel(x,y,&color);
+		}
+	}
+}
