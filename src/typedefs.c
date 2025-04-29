@@ -1,17 +1,6 @@
 #include "typedefs.h"
 
-Map2D testMap = {
-	8,8,100,{
-		{1,1,1,1,1,1,1,1},
-		{1,0,0,0,1,0,0,1},
-		{1,0,0,0,1,0,0,1},
-		{1,0,0,0,0,1,0,1},
-		{1,0,0,0,0,0,0,1},
-		{1,0,0,0,1,0,0,1},
-		{1,0,1,0,0,1,0,1},
-		{1,1,1,1,1,1,1,1},
-	}
-};
+Map2D map;
 
 Keyboard key;
 
@@ -34,4 +23,15 @@ float distance(float x1,float y1,float x2,float y2){
 	float dx = x2 -x1;
 	float dy = y2 -y1;
 	return sqrt((dx*dx)+(dy*dy));
+}
+
+float length(float x, float y){
+	float a = (x), b = (y);
+	return sqrt(a*a + b*b);
+}
+
+void normalize(float* x,float *y){
+	float a = *x, b = *y;
+	float l = length(a,b);
+	(*x) = (*x)/l; (*y) = (*y)/l;
 }

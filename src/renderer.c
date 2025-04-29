@@ -31,8 +31,8 @@ void DDA(int x1,int y1,int x2,int y2,RGB* color){
 void DrawMap2D(Map2D* m){
 	for(int y = 0; y < m->mapHeight;y++){
 		for(int x = 0; x < m->mapWidth; x++ ){
-			SDL_Rect rect = {x*m->mapS/4,y*m->mapS/4,m->mapS/4,m->mapS/4};
-			if(m->map[y][x] > 0){//Dibuja el muro
+			SDL_Rect rect = {x*m->mapS/16 + 1,y*m->mapS/16 + 1,16,16};
+			if(m->walls[y][x] > 0){//Dibuja el muro
 				SDL_SetRenderDrawColor(renderer,255,255,255,255);
 			}
 			else{
@@ -45,10 +45,10 @@ void DrawMap2D(Map2D* m){
 
 void DrawPlayer(){
 	RGB c1 = {255,255,0};
-	SDL_Rect p = {player.x/4,player.y/4,PIXELSCALE,PIXELSCALE};
+	SDL_Rect p = {player.x/16,player.y/16,PIXELSCALE,PIXELSCALE};
 	SDL_SetRenderDrawColor(renderer,c1.r,c1.g,c1.b,255);
 	SDL_RenderFillRect(renderer,&p);
-	SDL_RenderDrawLine(renderer,player.x/4 + PIXELSCALE/2,player.y/4 + PIXELSCALE/2,(player.x+player.dx*20)/4 + PIXELSCALE/2,(player.y+player.dy*20)/4 + PIXELSCALE/2);
+	SDL_RenderDrawLine(renderer,player.x/16 + PIXELSCALE/2,player.y/16 + PIXELSCALE/2,(player.x+player.dx*20)/16 + PIXELSCALE/2,(player.y+player.dy*20)/16 + PIXELSCALE/2);
 }
 
 void castRays(Map2D* m){
@@ -76,7 +76,7 @@ void castRays(Map2D* m){
 			//posicion actual del rayo en el mapa
 			int mapX = (int)(hrx/m->mapS); int mapY = (int)(hry/m->mapS);
 			if(mapX >= 0 && mapX < m->mapWidth && mapY >= 0 && mapY < m->mapHeight){//Muro detectado
-				if(m->map[mapY][mapX] > 0){
+				if(m->walls[mapY][mapX] > 0){
 					dof = DOF; distH = distance(player.x,player.y,hrx,hry);
 				}
 				else{
@@ -108,7 +108,7 @@ void castRays(Map2D* m){
 			//posicion actual del rayo en el mapa
 			int mapX = (int)(vrx/m->mapS); int mapY = (int)(vry/m->mapS);
 			if(mapX >= 0 && mapX < m->mapWidth && mapY >= 0 && mapY < m->mapHeight){//Muro detectado
-				if(m->map[mapY][mapX] > 0){
+				if(m->walls[mapY][mapX] > 0){
 					dof = DOF; distV = distance(player.x,player.y,vrx,vry);
 				}
 				else{
@@ -157,7 +157,7 @@ void castRaysDDA(Map2D* m){
 		float perspDistWall;
 		int stepX, stepY;
 		bool hit = false;
-		int side;
+		int side; // 0 vertical, 1 horizontal
 		float playerTileX = player.x /m->mapS;
 		float playerTileY = player.y / m->mapS;
 		//calculate step and initial sideDist
@@ -194,7 +194,7 @@ void castRaysDDA(Map2D* m){
 				side = 1;
 			}
 			if(mapX >= 0 && mapX < m->mapWidth && mapY >= 0 && mapY < m->mapHeight){
-				if(m->map[mapY][mapX] > 0){ hit = true; }
+				if(m->walls[mapY][mapX] > 0){ hit = true; }
 			}
 			else
 			{hit = true;}
@@ -204,10 +204,29 @@ void castRaysDDA(Map2D* m){
 		int drawStart = -lineHeight / 2 + SH / 2;
 		if(drawStart < 0)drawStart = 0;
 		int drawEnd = lineHeight / 2 + SH / 2;
-		if(drawEnd >= SH)drawEnd = SH - 1;
-		RGB color = {255,0,0};
-		color.r = (side==1) ? 255 : 255 * 0.5;
+		if(drawEnd >= SH)drawEnd = SH;
+		//Calcula las coordenadas uv
+		double wallX;
+		float shade = 1;
+		if (side == 0) {wallX = playerTileY + perspDistWall * rayDirY;}
+		else		{wallX = playerTileX + perspDistWall * rayDirX; shade = 0.5f;}
+		wallX -= floor((wallX));
+		//x coordinate on the texture
+		int texX = (int)(wallX * (double)(m->wallTextures.texWidth));
+		if(side == 0 && rayDirX > 0) texX = m->wallTextures.texWidth - texX - 1;
+		if(side == 1 && rayDirY < 0) texX = m->wallTextures.texWidth - texX - 1;
+		double step = 1.0 * m->wallTextures.texWidth / lineHeight;
+		double texPos = (drawStart - SH / 2 + lineHeight / 2) * step;
+		RGB color={0,0,0};
+		if(side == 0) {color.r = color.r * 0.5;}
 		for(int y = drawStart; y < drawEnd; y++){
+			// Cast the texture coordinate to integer, and mask with (texHeight - 1) in case of overflow
+			int texY = (int)texPos & (m->wallTextures.texHeight - 1);
+			texPos += step;
+			int p = (texY * m->wallTextures.texWidth + texX) * 3;
+			color.r = m->wallTextures.buffer[p+0] * shade;
+			color.g = m->wallTextures.buffer[p+1] * shade;
+			color.b = m->wallTextures.buffer[p+2] * shade;
 			pixel(x,y,&color);
 		}
 	}

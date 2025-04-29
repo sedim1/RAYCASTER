@@ -5,6 +5,7 @@
 #include <SDL2/SDL.h>
 #include "typedefs.h"
 #include "renderer.h"
+#include "loader.h"
 #include "Player.h"
 
 
@@ -21,7 +22,7 @@ extern SDL_Renderer* renderer;
 extern Keyboard key;
 bool isRunning = true;
 
-extern Map2D testMap;
+extern Map2D map;
 extern Player player;
 extern float deltaTime;
 
@@ -53,8 +54,8 @@ bool Init(){
         {
             printf( "Window could not be created! SDL_Error: %s\n", SDL_GetError() ); return false;
         }
-
 	PlayerInit(300.0f,300.0f,0.5f);
+	loadMap(&map,"Levels/map1.txt");
 	return true;
 }
 
@@ -74,11 +75,11 @@ void Update(){
 }
 
 void Display(){
-	SDL_SetRenderDrawColor(renderer,0,0,0,255); //Clear screen color
+	SDL_SetRenderDrawColor(renderer,0,125,125,255); //Clear screen color
 	SDL_RenderClear(renderer); //Clear 
 	//Rendering logic goes here
-	castRaysDDA(&testMap);
-	DrawMap2D(&testMap);
+	castRaysDDA(&map);
+	DrawMap2D(&map);
 	DrawPlayer();
 	SDL_RenderPresent(renderer); //Render the final image final image
 }
@@ -87,6 +88,7 @@ void End(){
 	SDL_DestroyWindow(window);
 	SDL_DestroyRenderer(renderer);
 	SDL_Quit();
+	freeMap(&map);
 	printf("Exiting\n");
 }
 
@@ -120,6 +122,9 @@ void HandleEvents(){
 				case SDLK_RIGHT:
 					key.right = 1;
 					break;
+				case SDLK_LSHIFT:
+					key.shift = 1;
+					break;
 			}
 			break;
 		case SDL_KEYUP:
@@ -141,6 +146,9 @@ void HandleEvents(){
 					break;
 				case SDLK_RIGHT:
 					key.right = 0;
+					break;
+				case SDLK_LSHIFT:
+					key.shift = 0;
 					break;
 
 			}
