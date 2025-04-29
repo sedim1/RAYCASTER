@@ -1,13 +1,16 @@
 #include "loader.h"
 
 void freeMap(Map2D* map){
-	for(int i = map->mapHeight; i >= 0; i--){
+	printf("Deleting Buffer map..\n");
+	for(int i = map->mapHeight-1; i >= 0; i--){
 		free(map->walls[i]);
+		free(map->floor[i]);
+		free(map->ceiling[i]);
 	}
 	//Delete all texture data of walls floors and ceiling
 	freeTexture(&map->wallTextures);
 	//Free map buffers and allocated textures
-	free(map->walls);
+	free(map->walls); free(map->floor); free(map->ceiling);
 }
 
 void loadMap(Map2D* map,char* path){
@@ -18,11 +21,30 @@ void loadMap(Map2D* map,char* path){
 	if(fp){
 		fscanf(fp,"%d %d %d",&map->mapWidth,&map->mapHeight,&map->mapS);
 		map->walls = (int**)malloc(sizeof(int*)*map->mapHeight);
+		map->floor = (int**)malloc(sizeof(int*)*map->mapHeight);
+		map->ceiling = (int**)malloc(sizeof(int*)*map->mapHeight);
+		//Read wall buffer
 		for(i = 0; i < map->mapHeight;i++)
 		{
 			map->walls[i] = (int*)malloc(sizeof(int)*map->mapWidth);
 			for(j = 0; j < map->mapWidth;j++){
 				fscanf(fp,"%d ",&map->walls[i][j]);
+			}
+		}
+		//Read floor buffer
+		for(i = 0; i < map->mapHeight;i++)
+		{
+			map->floor[i] = (int*)malloc(sizeof(int)*map->mapWidth);
+			for(j = 0; j < map->mapWidth;j++){
+				fscanf(fp,"%d ",&map->floor[i][j]);
+			}
+		}
+		//Read ceiling buffer
+		for(i = 0; i < map->mapHeight;i++)
+		{
+			map->ceiling[i] = (int*)malloc(sizeof(int)*map->mapWidth);
+			for(j = 0; j < map->mapWidth;j++){
+				fscanf(fp,"%d ",&map->ceiling[i][j]);
 			}
 		}
 		fscanf(fp,"%s",texPath);
@@ -52,5 +74,6 @@ void loadTexture(TEXMAP* map,char* path){
 }
 
 void freeTexture(TEXMAP* map){
+	printf("Deleting TextureMap map..\n");
 	free(map->buffer); map->texWidth = 0; map->texHeight = 0; map->buffer=NULL;
 }

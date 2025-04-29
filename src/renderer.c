@@ -148,7 +148,7 @@ void castRaysDDA(Map2D* m){
 		float cameraX = 2 * x / (float)(SW) - 1.0f;
 		float rayDirX = (player.dx + player.planeX * cameraX) + 0.000001f;
 		float rayDirY = (player.dy + player.planeY * cameraX) + 0.000001f;
-		//which box of the map we're in
+		//posicion relativa al mapa
 		int mapX = (int)(player.x/m->mapS);
 		int mapY = (int)(player.y/m->mapS);
 		float sideDistX, sideDistY,deltaDistX,deltaDistY;
@@ -160,7 +160,7 @@ void castRaysDDA(Map2D* m){
 		int side; // 0 vertical, 1 horizontal
 		float playerTileX = player.x /m->mapS;
 		float playerTileY = player.y / m->mapS;
-		//calculate step and initial sideDist
+		//DEfinir la direccion del rayo
 		if (rayDirX < 0)
 		{
 			stepX = -1;
@@ -181,6 +181,7 @@ void castRaysDDA(Map2D* m){
 			stepY = 1;
 			sideDistY = (mapY + 1.0 - playerTileY) * deltaDistY;
 		}
+		//Empezar a castear el rayp
 		while(hit == false){
 			if(sideDistX < sideDistY){
 				sideDistX += deltaDistX;
@@ -193,7 +194,7 @@ void castRaysDDA(Map2D* m){
 				side = 1;
 			}
 			if(mapX >= 0 && mapX < m->mapWidth && mapY >= 0 && mapY < m->mapHeight){
-				if(m->walls[mapY][mapX] > 0){ hit = true; }
+				if(m->walls[mapY][mapX] > 0){ hit = true; }// muro detectado
 			}
 			else
 			{hit = true;}
