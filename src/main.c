@@ -75,7 +75,7 @@ void Update(){
 }
 
 void Display(){
-	SDL_SetRenderDrawColor(renderer,0,125,125,255); //Clear screen color
+	SDL_SetRenderDrawColor(renderer,0,0,0,255); //Clear screen color
 	SDL_RenderClear(renderer); //Clear 
 	//Rendering logic goes here
 	castRaysDDA(&map);

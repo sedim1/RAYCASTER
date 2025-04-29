@@ -181,7 +181,6 @@ void castRaysDDA(Map2D* m){
 			stepY = 1;
 			sideDistY = (mapY + 1.0 - playerTileY) * deltaDistY;
 		}
-		int dof = 0;
 		while(hit == false){
 			if(sideDistX < sideDistY){
 				sideDistX += deltaDistX;
@@ -206,6 +205,7 @@ void castRaysDDA(Map2D* m){
 		int drawEnd = lineHeight / 2 + SH / 2;
 		if(drawEnd >= SH)drawEnd = SH;
 		//Calcula las coordenadas uv
+		float mapVal = m->walls[mapY][mapX] - 1;
 		double wallX;
 		float shade = 1;
 		if (side == 0) {wallX = playerTileY + perspDistWall * rayDirY;}
@@ -221,9 +221,9 @@ void castRaysDDA(Map2D* m){
 		if(side == 0) {color.r = color.r * 0.5;}
 		for(int y = drawStart; y < drawEnd; y++){
 			// Cast the texture coordinate to integer, and mask with (texHeight - 1) in case of overflow
-			int texY = (int)texPos & (m->wallTextures.texHeight - 1);
+			int texY = (int)texPos & (m->wallTextures.texWidth - 1);
 			texPos += step;
-			int p = (texY * m->wallTextures.texWidth + texX) * 3;
+			int p = (texY * m->wallTextures.texWidth + texX) * 3 + (mapVal * m->wallTextures.texWidth * m->wallTextures.texWidth * 3);
 			color.r = m->wallTextures.buffer[p+0] * shade;
 			color.g = m->wallTextures.buffer[p+1] * shade;
 			color.b = m->wallTextures.buffer[p+2] * shade;

@@ -10,7 +10,7 @@ float rotSpeed = 170.0f;
 void PlayerInit(float x,float y, float angle){
 	player.x = x; player.y = y; player.a = normalizeAngle(angle);
 	player.dx = cos(degToRad(player.a)); player.dy = sin(degToRad(player.a));
-	player.planeX = -player.dy; player.planeY = player.dx ;
+	player.planeX = -player.dy * FOV_FACTOR; player.planeY = player.dx * FOV_FACTOR;
 }
 void PlayerUpdate(){ //Funcion que se llamara cada frame y llevara a cabo la logica del jugador
 	MovePlayer(&map);
@@ -20,12 +20,12 @@ void MovePlayer(Map2D* m){
 	if(key.left == 1){ 
 		player.a -= rotSpeed * deltaTime; player.a = normalizeAngle(player.a);  
 		player.dx = cos(degToRad(player.a)); player.dy = sin(degToRad(player.a));
-		player.planeX = -player.dy; player.planeY = player.dx;
+		player.planeX = -player.dy  * FOV_FACTOR; player.planeY = player.dx  * FOV_FACTOR;
 	}
 	if(key.right == 1){ 
 		player.a += rotSpeed * deltaTime; player.a = normalizeAngle(player.a);  
 		player.dx = cos(degToRad(player.a)); player.dy = sin(degToRad(player.a));
-		player.planeX = -player.dy; player.planeY = player.dx;
+		player.planeX = -player.dy  * FOV_FACTOR ; player.planeY = player.dx  * FOV_FACTOR ;
 	}
 	int mapX = (int)(player.x/m->mapS); int mapY = (int)(player.y/m->mapS);
 	int xo = (player.dx < 0) ? -20 : 20 ; int yo = (player.dy < 0) ? -20 : 20 ;
