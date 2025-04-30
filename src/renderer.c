@@ -220,7 +220,7 @@ void castRaysDDA(Map2D* m){
 		double texPos = (drawStart - SH / 2 + lineHeight / 2) * step;
 		RGB color={0,0,0};
 		if(side == 0) {color.r = color.r * 0.5;}
-		for(int y = drawStart; y < drawEnd; y++){
+		for(int y = drawStart; y <= drawEnd; y++){
 			// Cast the texture coordinate to integer, and mask with (texHeight - 1) in case of overflow
 			int texY = (int)texPos & (m->wallTextures.texWidth - 1);
 			texPos += step;
@@ -229,6 +229,44 @@ void castRaysDDA(Map2D* m){
 			color.g = m->wallTextures.buffer[p+1] * shade;
 			color.b = m->wallTextures.buffer[p+2] * shade;
 			pixel(x,y,&color);
+		}
+		//Dibuja el suelo y el techo
+		float floorWallX, floorWallY;
+		if(side == 0 && rayDirX > 0){ floorWallX = mapX; floorWallY = mapY + wallX; }
+		else if(side == 0 && rayDirX < 0){ floorWallX = mapX + 1.0f; floorWallY = mapY + wallX; }
+		else if(side == 1 && rayDirY > 0){ floorWallX = mapX + wallX; floorWallY = mapY; }
+		else { floorWallX = mapX + wallX; floorWallY = mapY + 1.0f; }
+		double distWall, distPlayer, currentDist;
+		if (drawEnd < 0) drawEnd = SH;
+		distWall = perspDistWall; distPlayer = 0.0f;
+		for(int y = drawEnd+1; y < SH; y++){
+			currentDist = SH / (2.0 * y - SH);
+			double weight = (currentDist - distPlayer)/(distWall - distPlayer);
+			double currentFloorX = weight * floorWallX + (1.0 - weight) * playerTileX;
+			double currentFloorY = weight * floorWallY + (1.0 - weight) * playerTileY;
+			int floorTexX, floorTexY;
+			floorTexX = (int)(currentFloorX * m->wallTextures.texWidth) % m->wallTextures.texWidth;
+			floorTexY = (int)(currentFloorY * m->wallTextures.texWidth) % m->wallTextures.texWidth;
+			int iFx = (int)currentFloorX, iFy = (int)currentFloorY;
+			if(iFx >= 0 && iFx < m->mapWidth && iFy >= 0 && iFy < m->mapHeight){
+				int floorMapVal = m->floor[iFy][iFx] - 1;
+				int ceilingMapVal = m->ceiling[iFy][iFx] - 1;
+				if(floorMapVal >= 0){
+					int pf = (floorTexY * m->floorTextures.texWidth + floorTexX) * 3 +  (floorMapVal * m->floorTextures.texWidth * m->floorTextures.texWidth * 3);
+					color.r = m->wallTextures.buffer[pf+0] * 0.7;
+					color.g = m->wallTextures.buffer[pf+1] * 0.7;
+					color.b = m->wallTextures.buffer[pf+2] * 0.7;
+					pixel(x,y,&color);
+				}
+				if(ceilingMapVal >= 0){
+					int pc = (floorTexY * m->ceilingTextures.texWidth + floorTexX) * 3 +  (ceilingMapVal * m->ceilingTextures.texWidth * m->ceilingTextures.texWidth * 3);
+					color.r = m->wallTextures.buffer[pc+0] * 0.7;
+					color.g = m->wallTextures.buffer[pc+1] * 0.7;
+					color.b = m->wallTextures.buffer[pc+2] * 0.7;
+					pixel(x,SH-y,&color);
+				}
+
+			}
 		}
 	}
 }

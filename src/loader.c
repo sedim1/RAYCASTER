@@ -8,7 +8,7 @@ void freeMap(Map2D* map){
 		free(map->ceiling[i]);
 	}
 	//Delete all texture data of walls floors and ceiling
-	freeTexture(&map->wallTextures);
+	freeTexture(&map->wallTextures); freeTexture(&map->floorTextures); freeTexture(&map->ceilingTextures);
 	//Free map buffers and allocated textures
 	free(map->walls); free(map->floor); free(map->ceiling);
 }
@@ -49,6 +49,10 @@ void loadMap(Map2D* map,char* path){
 		}
 		fscanf(fp,"%s",texPath);
 		loadTexture(&map->wallTextures,texPath);
+		fscanf(fp,"%s",texPath);
+		loadTexture(&map->floorTextures,texPath);
+		fscanf(fp,"%s",texPath);
+		loadTexture(&map->ceilingTextures,texPath);
 		fclose(fp);
 	}
 	else{printf("ERROR::MAP WAS NOT FOUND::\n");}

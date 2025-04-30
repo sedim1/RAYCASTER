@@ -25,6 +25,7 @@ bool isRunning = true;
 extern Map2D map;
 extern Player player;
 extern float deltaTime;
+int fps = 0;
 
 int main(int argc, char* argv[]){
 	if(!Init())
@@ -62,6 +63,7 @@ bool Init(){
 
 void Update(){
 	float lastTime = 0.0f, current = 0.0f;
+	float lastFrameTime = 0.0f;
 	while(isRunning){
 		current = SDL_GetTicks()/1000.0f;
 		deltaTime = current - lastTime;
@@ -71,6 +73,12 @@ void Update(){
 		PlayerUpdate();
 		//Start rendering after processing the game logic
 		Display();
+		if(current - lastFrameTime >= 1.0f){
+			printf("FPS: %d\n",fps);
+			fps = 0;
+			lastFrameTime = current;
+		}
+		else { fps++;}
 	}
 }
 
@@ -79,8 +87,8 @@ void Display(){
 	SDL_RenderClear(renderer); //Clear 
 	//Rendering logic goes here
 	castRaysDDA(&map);
-	DrawMap2D(&map);
-	DrawPlayer();
+	//DrawMap2D(&map);
+	//DrawPlayer();
 	SDL_RenderPresent(renderer); //Render the final image final image
 }
 
