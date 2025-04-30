@@ -4,6 +4,8 @@ Map2D map;
 
 Keyboard key;
 
+Mouse mouse;
+
 float deltaTime = 0.0f;
 
 float degToRad(float degrees){

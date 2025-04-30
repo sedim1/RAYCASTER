@@ -27,6 +27,14 @@ typedef struct{
 }Keyboard;
 
 typedef struct{
+	int posX;
+	int posY;
+	int deltaX;
+	int deltaY;
+	bool motion;
+}Mouse;
+
+typedef struct{
 	int r,g,b;
 }RGB;
 

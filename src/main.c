@@ -16,7 +16,7 @@ void Display();
 void HandleEvents();
 
 //window to render
-SDL_Window* window = NULL;
+extern SDL_Window* window;
 //The surface contained by the window
 extern SDL_Renderer* renderer;
 extern Keyboard key;
@@ -24,6 +24,7 @@ bool isRunning = true;
 
 extern Map2D map;
 extern Player player;
+extern Mouse mouse;
 extern float deltaTime;
 int fps = 0;
 
@@ -57,6 +58,7 @@ bool Init(){
         }
 	PlayerInit(300.0f,300.0f,0.5f);
 	loadMap(&map,"Levels/map1.txt");
+
 	return true;
 }
 
@@ -68,6 +70,7 @@ void Update(){
 		current = SDL_GetTicks()/1000.0f;
 		deltaTime = current - lastTime;
 		lastTime = current;
+		SDL_PumpEvents(); 
 		HandleEvents();
 		//Game logic goes here
 		PlayerUpdate();
@@ -93,6 +96,7 @@ void Display(){
 }
 
 void End(){
+	SDL_SetRelativeMouseMode(SDL_FALSE); 
 	SDL_DestroyWindow(window);
 	SDL_DestroyRenderer(renderer);
 	SDL_Quit();
@@ -102,10 +106,14 @@ void End(){
 
 void HandleEvents(){
 	SDL_Event e;
-	SDL_PollEvent(&e);
+	while(SDL_PollEvent(&e)){
 	switch(e.type){
 		case SDL_QUIT:
 			isRunning = false;
+			break;
+		case (SDL_MOUSEMOTION):
+			mouse.deltaX = e.motion.xrel;
+			mouse.motion = true;
 			break;
 		case SDL_KEYDOWN:
 			switch( e.key.keysym.sym ){
@@ -163,5 +171,6 @@ void HandleEvents(){
 			break;
 		default:
 			break;
+	}
 	}
 }
