@@ -8,7 +8,7 @@ extern Mouse mouse;
 extern float deltaTime;
 extern Map2D map;
 float pSpeed = 350.0f;
-float rotSpeed = 170.0f;
+float rotSpeed = 130.0f;
 bool motion = false; float mouseSensitivity = 0.5f;
 
 
@@ -25,7 +25,7 @@ void PlayerUpdate(){ //Funcion que se llamara cada frame y llevara a cabo la log
 
 void MovePlayer(Map2D* m){
 	if(mouse.motion == true){
-        	float rotH = -mouse.deltaX * 0.1f * mouseSensitivity; 
+        	float rotH = -mouse.deltaX * rotSpeed * mouseSensitivity * deltaTime; 
         	player.a = normalizeAngle(player.a - rotH);
         	player.dx = cos(degToRad(player.a)); 
         	player.dy = sin(degToRad(player.a));
