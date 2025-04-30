@@ -49,12 +49,13 @@ void MovePlayer(Map2D* m){
 	}
 	 addX = (int)((player.x-yo)/m->mapS);  addY = (int)((player.y+xo)/m->mapS);
 	 subX = (int)((player.x+yo)/m->mapS);  subY = (int)((player.y-xo)/m->mapS);
-	 if(key.d == 1){ 
-                if(m->walls[mapY][addX] < 1){ player.x -= player.dy * pSpeed * deltaTime;}
-                if(m->walls[addY][mapX] < 1){ player.y += player.dx * pSpeed * deltaTime;}
+	 if(key.d == 1){
+                if(m->walls[mapY][addX] < 1){ (player.x -= player.dy * pSpeed*0.6f * deltaTime);}
+                if(m->walls[addY][mapX] < 1){ (player.y += player.dx * pSpeed*0.6f * deltaTime);}
         }
         if(key.a == 1){ 
-        	if(m->walls[mapY][subX] < 1){ player.x += player.dy * pSpeed * deltaTime;}
-        	if(m->walls[subY][mapX] < 1){ player.y -= player.dx * pSpeed * deltaTime;}
+        	if(m->walls[mapY][subX] < 1){ player.x += (player.dy * pSpeed*0.6f * deltaTime);}
+        	if(m->walls[subY][mapX] < 1){ player.y -= (player.dx * pSpeed*0.6f * deltaTime);}
         }
+	normalize(&player.dx,&player.dy);
 }
