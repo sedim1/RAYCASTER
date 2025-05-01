@@ -240,9 +240,11 @@ void castRaysDDA(Map2D* m){
 		else { floorWallX = mapX + wallX; floorWallY = mapY + 1.0f; }
 		double distWall, distPlayer, currentDist;
 		if (drawEnd < 0) drawEnd = 0;
+		else { drawEnd += 1;}
+
 		distWall = perspDistWall; distPlayer = 0.0f;
 		//Dibuja el suelo
-		for(int y = drawEnd+1; y < SH; y++){
+		for(int y = drawEnd; y < SH; y++){
 			currentDist = SH / (2.0 * (y - player.l) - SH);
 			double weight = (currentDist - distPlayer)/(distWall - distPlayer);
 			double currentFloorX = weight * floorWallX + (1.0 - weight) * playerTileX;
@@ -260,20 +262,12 @@ void castRaysDDA(Map2D* m){
 					color.b = m->floorTextures.buffer[pf+2] * 0.7;
 					pixel(x,y,&color);
 				}
-				/*if(ceilingMapVal >= 0){
-					int pc = (floorTexY * m->ceilingTextures.texWidth + floorTexX) * 3 +  (ceilingMapVal * m->ceilingTextures.texWidth * m->ceilingTextures.texWidth * 3);
-					color.r = m->ceilingTextures.buffer[pc+0] * 0.7;
-					color.g = m->ceilingTextures.buffer[pc+1] * 0.7;
-					color.b = m->ceilingTextures.buffer[pc+2] * 0.7;
-					pixel(x,SH-y,&color);
-				}*/
 			}
 		}
 		//Dibuja el techo
-		/*if(drawStart > SH) {drawStart = SH;}
+		if(drawStart > SH) {drawStart = SH;}
 		for(int y = drawStart-1; y >= 0; y--){
-			printf("xx\n");
-			currentDist = SH / (2.0 * (y + player.l) - SH);
+			currentDist = SH / (SH - 2.0 * (y - player.l));
 			double weight = (currentDist - distPlayer)/(distWall - distPlayer);
 			double currentCeilingX = weight * floorWallX + (1.0 - weight) * playerTileX;
 			double currentCeilingY = weight * floorWallY + (1.0 - weight) * playerTileY;
@@ -291,7 +285,7 @@ void castRaysDDA(Map2D* m){
 					pixel(x,y,&color);
 				}
 			}
-		}*/
+		}
 
 	}
 }

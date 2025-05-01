@@ -29,8 +29,8 @@ void MovePlayer(Map2D* m){
         	float rotH = -mouse.deltaX * rotSpeed * mouseSensitivity * deltaTime; 
         	float rotY = -mouse.deltaY * rotSpeed * mouseSensitivity * deltaTime;
 		player.l+= rotY; 
-		if(player.l > 120.5f){ player.l = 120.5f;}
-		if(player.l < -120.5f){ player.l = -120.5f;}
+		if(player.l > 160.5f){ player.l = 160.5f;}
+		if(player.l < -160.5f){ player.l = -160.5f;}
         	player.a = normalizeAngle(player.a - rotH);
         	player.dx = cos(degToRad(player.a)); 
         	player.dy = sin(degToRad(player.a));
