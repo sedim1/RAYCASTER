@@ -202,9 +202,9 @@ void castRaysDDA(Map2D* m){
 		}
 		perspDistWall = (side == 0) ? (sideDistX - deltaDistX) : (sideDistY - deltaDistY);
 		int lineHeight = (int)(SH/perspDistWall);
-		int drawStart = -lineHeight / 2 + SH / 2;
+		int drawStart = (-lineHeight / 2 + SH / 2)+player.l;
 		if(drawStart < 0)drawStart = 0;
-		int drawEnd = lineHeight / 2 + SH / 2;
+		int drawEnd = (lineHeight / 2 + SH / 2)+player.l;
 		if(drawEnd >= SH)drawEnd = SH;
 		//Calcula las coordenadas uv
 		float mapVal = m->walls[mapY][mapX] - 1;
@@ -217,11 +217,12 @@ void castRaysDDA(Map2D* m){
 		int texX = (int)(wallX * (double)(m->wallTextures.texWidth));
 		if(side == 0 && rayDirX > 0) texX = m->wallTextures.texWidth - texX - 1;
 		if(side == 1 && rayDirY < 0) texX = m->wallTextures.texWidth - texX - 1;
-		double step = 1.0 * m->wallTextures.texWidth / lineHeight;
-		double texPos = (drawStart - SH / 2 + lineHeight / 2) * step;
+		double step = (1.0 * m->wallTextures.texWidth / lineHeight);
+		double texPos = ((drawStart - SH / 2 + lineHeight / 2) - player.l) * step;
 		RGB color={0,0,0};
 		if(side == 0) {color.r = color.r * 0.5;}
-		for(int y = drawStart; y <= drawEnd; y++){
+		//Dibuja el muro
+		for(int y = drawStart; y <= drawEnd && drawStart <= SH && drawEnd >= 0; y++){
 			// Cast the texture coordinate to integer, and mask with (texHeight - 1) in case of overflow
 			int texY = (int)texPos & (m->wallTextures.texWidth - 1);
 			texPos += step;
@@ -231,43 +232,66 @@ void castRaysDDA(Map2D* m){
 			color.b = m->wallTextures.buffer[p+2] * shade;
 			pixel(x,y,&color);
 		}
-		//Dibuja el suelo y el techo
+		//Dibuja el suelo
 		float floorWallX, floorWallY;
 		if(side == 0 && rayDirX > 0){ floorWallX = mapX; floorWallY = mapY + wallX; }
 		else if(side == 0 && rayDirX < 0){ floorWallX = mapX + 1.0f; floorWallY = mapY + wallX; }
 		else if(side == 1 && rayDirY > 0){ floorWallX = mapX + wallX; floorWallY = mapY; }
 		else { floorWallX = mapX + wallX; floorWallY = mapY + 1.0f; }
 		double distWall, distPlayer, currentDist;
-		if (drawEnd < 0) drawEnd = SH;
+		if (drawEnd < 0) drawEnd = 0;
 		distWall = perspDistWall; distPlayer = 0.0f;
+		//Dibuja el suelo
 		for(int y = drawEnd+1; y < SH; y++){
-			currentDist = SH / (2.0 * y - SH);
+			currentDist = SH / (2.0 * (y - player.l) - SH);
 			double weight = (currentDist - distPlayer)/(distWall - distPlayer);
 			double currentFloorX = weight * floorWallX + (1.0 - weight) * playerTileX;
 			double currentFloorY = weight * floorWallY + (1.0 - weight) * playerTileY;
 			int floorTexX, floorTexY;
-			floorTexX = (int)(currentFloorX * m->wallTextures.texWidth) % m->wallTextures.texWidth;
-			floorTexY = (int)(currentFloorY * m->wallTextures.texWidth) % m->wallTextures.texWidth;
+			floorTexX = (int)(currentFloorX * m->floorTextures.texWidth) % m->floorTextures.texWidth;
+			floorTexY = ((int)(currentFloorY * m->floorTextures.texWidth) % m->floorTextures.texWidth);
 			int iFx = (int)currentFloorX, iFy = (int)currentFloorY;
 			if(iFx >= 0 && iFx < m->mapWidth && iFy >= 0 && iFy < m->mapHeight){
 				int floorMapVal = m->floor[iFy][iFx] - 1;
-				int ceilingMapVal = m->ceiling[iFy][iFx] - 1;
 				if(floorMapVal >= 0){
 					int pf = (floorTexY * m->floorTextures.texWidth + floorTexX) * 3 +  (floorMapVal * m->floorTextures.texWidth * m->floorTextures.texWidth * 3);
-					color.r = m->wallTextures.buffer[pf+0] * 0.7;
-					color.g = m->wallTextures.buffer[pf+1] * 0.7;
-					color.b = m->wallTextures.buffer[pf+2] * 0.7;
+					color.r = m->floorTextures.buffer[pf+0] * 0.7;
+					color.g = m->floorTextures.buffer[pf+1] * 0.7;
+					color.b = m->floorTextures.buffer[pf+2] * 0.7;
 					pixel(x,y,&color);
 				}
-				if(ceilingMapVal >= 0){
+				/*if(ceilingMapVal >= 0){
 					int pc = (floorTexY * m->ceilingTextures.texWidth + floorTexX) * 3 +  (ceilingMapVal * m->ceilingTextures.texWidth * m->ceilingTextures.texWidth * 3);
-					color.r = m->wallTextures.buffer[pc+0] * 0.7;
-					color.g = m->wallTextures.buffer[pc+1] * 0.7;
-					color.b = m->wallTextures.buffer[pc+2] * 0.7;
+					color.r = m->ceilingTextures.buffer[pc+0] * 0.7;
+					color.g = m->ceilingTextures.buffer[pc+1] * 0.7;
+					color.b = m->ceilingTextures.buffer[pc+2] * 0.7;
 					pixel(x,SH-y,&color);
-				}
-
+				}*/
 			}
 		}
+		//Dibuja el techo
+		/*if(drawStart > SH) {drawStart = SH;}
+		for(int y = drawStart-1; y >= 0; y--){
+			printf("xx\n");
+			currentDist = SH / (2.0 * (y + player.l) - SH);
+			double weight = (currentDist - distPlayer)/(distWall - distPlayer);
+			double currentCeilingX = weight * floorWallX + (1.0 - weight) * playerTileX;
+			double currentCeilingY = weight * floorWallY + (1.0 - weight) * playerTileY;
+			int ceilingTexX, ceilingTexY;
+			ceilingTexX = (int)(currentCeilingX * m->ceilingTextures.texWidth) % m->ceilingTextures.texWidth;
+			ceilingTexY = ((int)(currentCeilingY * m->ceilingTextures.texWidth) % m->ceilingTextures.texWidth);
+			int iCx = (int)currentCeilingX, iCy = (int)currentCeilingY;
+			if(iCx >= 0 && iCx < m->mapWidth && iCy >= 0 && iCy < m->mapHeight){
+				int ceilingMapVal = m->ceiling[iCy][iCx] - 1;
+				if(ceilingMapVal >= 0){
+					int pc = (ceilingTexY * m->ceilingTextures.texWidth + ceilingTexX) * 3 +  (ceilingMapVal * m->ceilingTextures.texWidth * m->ceilingTextures.texWidth * 3);
+					color.r = m->ceilingTextures.buffer[pc+0] * 0.7;
+					color.g = m->ceilingTextures.buffer[pc+1] * 0.7;
+					color.b = m->ceilingTextures.buffer[pc+2] * 0.7;
+					pixel(x,y,&color);
+				}
+			}
+		}*/
+
 	}
 }

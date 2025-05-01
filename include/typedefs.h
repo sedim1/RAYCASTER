@@ -16,7 +16,7 @@
 #define M_PI 3.14159265358979323846
 #define MAX 300
 
-#define FOV (90.0f)
+#define FOV (60.0f)
 #define FOV_FACTOR (tan(degToRad(FOV) / 2.0f))
 #define DOF 20
 #define ANGLE_STEP (FOV/SCREEN_WIDTH) * PIXELSCALE
@@ -59,6 +59,7 @@ typedef struct{
 	float a; //Angle
 	float dx,dy;
 	float planeX, planeY; //camera 
+	int l;
 }Player;
 
 float degToRad(float degrees);

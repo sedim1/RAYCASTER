@@ -11,6 +11,7 @@ void freeMap(Map2D* map){
 	freeTexture(&map->wallTextures); freeTexture(&map->floorTextures); freeTexture(&map->ceilingTextures);
 	//Free map buffers and allocated textures
 	free(map->walls); free(map->floor); free(map->ceiling);
+	map->walls = NULL; map->floor = NULL; map->ceiling = NULL;
 }
 
 void loadMap(Map2D* map,char* path){

@@ -113,6 +113,7 @@ void HandleEvents(){
 			break;
 		case (SDL_MOUSEMOTION):
 			mouse.deltaX = e.motion.xrel;
+			mouse.deltaY = e.motion.yrel;
 			mouse.motion = true;
 			break;
 		case SDL_KEYDOWN:
