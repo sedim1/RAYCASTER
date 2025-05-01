@@ -56,6 +56,7 @@ typedef struct{
 
 typedef struct{
 	float x,y; //Posicion
+	int z;
 	float a; //Angle
 	float dx,dy;
 	float planeX, planeY; //camera 
