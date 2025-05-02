@@ -1,6 +1,6 @@
 #include "renderer.h"
 
-#define SPRITE_SCALE 80.0f
+#define SPRITE_SCALE 50.0f
 
 SDL_Window* window = NULL;
 SDL_Renderer* renderer = NULL;
@@ -330,7 +330,7 @@ void DrawSprite2D(Sprite2D* sprite){
 			color.r = sprite->texture.buffer[p];
 			color.g = sprite->texture.buffer[p+1];
 			color.b = sprite->texture.buffer[p+2];
-			if(color.r != 255 && color.g != 0 && color.b != 255)
+			//if(color.r != 255 && color.g != 0 && color.b != 255)
 				pixel(x,y,&color);
 		}
 	}
