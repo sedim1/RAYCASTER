@@ -82,3 +82,18 @@ void freeTexture(TEXMAP* map){
 	printf("Deleting TextureMap map..\n");
 	free(map->buffer); map->texWidth = 0; map->texHeight = 0; map->buffer=NULL;
 }
+
+void loadSprite(Sprite2D* sprite,enum SpriteType type,int x, int y, int z,bool visible,int atlas,char* path){
+	if(sprite->texture.buffer != NULL){
+		freeSprite(sprite);
+	}
+	sprite->type = type;
+	sprite->x = x; sprite->y = y; sprite->z = z;
+	sprite->on = visible;
+	sprite->mapVal = atlas;
+	loadTexture(&sprite->texture,path);
+}
+
+void freeSprite(Sprite2D* sprite){
+	freeTexture(&sprite->texture);
+}

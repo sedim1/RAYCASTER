@@ -8,7 +8,7 @@
 #include <stdbool.h>
 #define RESOLUTION 1
 #define SW 256 * RESOLUTION //Pixeles en el ancho de pantalla logica
-#define SH 160 * RESOLUTION //Pixeles en altura de pantalla logica
+#define SH 224 * RESOLUTION //Pixeles en altura de pantalla logica
 #define PIXELSCALE 4/RESOLUTION
 #define SCREEN_WIDTH (SW*PIXELSCALE) //Ajustar ancho de ventana en base al tamaño del pixel
 #define SCREEN_HEIGHT (SH*PIXELSCALE) //Ajustar altura de ventana en base al tamaño del pixel
@@ -62,6 +62,20 @@ typedef struct{
 	float planeX, planeY; //camera 
 	int l;
 }Player;
+
+enum SpriteType{
+	STATIC, //Sprite is single image
+	ANIMATED, //Sprite is animated
+};
+
+typedef struct{
+	enum SpriteType type;
+	bool on;
+	float x, y;
+	float z;
+	int mapVal;
+	TEXMAP texture;
+}Sprite2D;
 
 float degToRad(float degrees);
 float normalizeAngle(float angle);

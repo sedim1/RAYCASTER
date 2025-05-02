@@ -26,6 +26,7 @@ extern Map2D map;
 extern Player player;
 extern Mouse mouse;
 extern float deltaTime;
+Sprite2D sprite;
 int fps = 0;
 
 int main(int argc, char* argv[]){
@@ -56,9 +57,9 @@ bool Init(){
         {
             printf( "Window could not be created! SDL_Error: %s\n", SDL_GetError() ); return false;
         }
-	PlayerInit(300.0f,300.0f,0.5f);
+	PlayerInit(200.0f,200.0f,0.5f);
 	loadMap(&map,"Levels/map1.txt");
-
+	loadSprite(&sprite,STATIC,400.0,200.0,0.0,true,0,"Sprites/Sprite.ppm");
 	return true;
 }
 
@@ -90,6 +91,7 @@ void Display(){
 	SDL_RenderClear(renderer); //Clear 
 	//Rendering logic goes here
 	castRaysDDA(&map);
+	DrawSprite2D(&sprite);
 	//DrawMap2D(&map);
 	//DrawPlayer();
 	SDL_RenderPresent(renderer); //Render the final image final image
@@ -101,6 +103,7 @@ void End(){
 	SDL_DestroyRenderer(renderer);
 	SDL_Quit();
 	freeMap(&map);
+	freeSprite(&sprite);
 	printf("Exiting\n");
 }
 

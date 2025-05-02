@@ -63,5 +63,4 @@ void MovePlayer(Map2D* m){
         	if(m->walls[mapY][subX] < 1){ player.x += (player.dy * pSpeed*n * deltaTime);}
         	if(m->walls[subY][mapX] < 1){ player.y -= (player.dx * pSpeed*n * deltaTime);}
         }
-	normalize(&player.dx,&player.dy);
 }

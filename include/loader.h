@@ -12,4 +12,8 @@ TEXMAP* createTexture();
 void loadTexture(TEXMAP* map,char* path);
 void freeTexture(TEXMAP* map);
 
+//Loading Sprites
+void loadSprite(Sprite2D* sprite,enum SpriteType type,int x, int y, int z,bool visible,int atlas,char* path);
+void freeSprite(Sprite2D* sprite);
+
 #endif

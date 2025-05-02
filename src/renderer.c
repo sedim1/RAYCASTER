@@ -1,5 +1,7 @@
 #include "renderer.h"
 
+#define SPRITE_SCALE 80.0f
+
 SDL_Window* window = NULL;
 SDL_Renderer* renderer = NULL;
 extern Player player;
@@ -287,5 +289,49 @@ void castRaysDDA(Map2D* m){
 			}
 		}
 
+	}
+}
+
+void DrawSprite2D(Sprite2D* sprite){
+	if(sprite->on == false) { return;}
+	double spriteX = sprite->x - player.x;
+	double spriteY = sprite->y - player.y;
+
+	double invDet = 1.0f / (player.planeX * player.dy - player.dx * player.planeY);
+
+	double transformX = invDet * (player.dy * spriteX - player.dx * spriteY);
+	double transformY = invDet * (-player.planeY * spriteX + player.planeX * spriteY); //Profundidad actual del objeto en el eje de projundidad
+	
+	int screenX = (int)((SW/2)*(1+transformX/transformY)); // posision en la pantalla en X
+	int viewOffset = player.l + sprite->z;
+	//height of sprite on the screen
+	int spriteHeight = abs((int)(SH/transformY*SPRITE_SCALE));
+	//Calcular desde donde empezara a dibujar cada columna del pixel
+	int drawStartY = (SH/2 - spriteHeight/2) + viewOffset; 
+	if(drawStartY < 0) {drawStartY = 0;}
+	int drawEndY = (SH/2 + spriteHeight/2) + viewOffset;
+	if(drawEndY > SH) {drawEndY = SH;}
+	//Width of sprite on screen
+	int spriteWidth = abs((int)(SH/transformY*SPRITE_SCALE));
+	int drawStartX = screenX - spriteWidth/2;
+	if(drawStartX < 0) {drawStartX = 0;}
+	int drawEndX = screenX + spriteWidth/2;
+	if(drawEndX > SW) {drawEndX = SW;}
+	//Dibuja el sprite columna por columna, pixel por pixel
+	if (transformY <= 0) {return;} //No dibujar el sprite si se encuentra fuera de la pantalla
+	for(int x = drawStartX; x < drawEndX; x++){
+		int texX = ((int)((256 * (x - (-spriteWidth / 2 + screenX)) * sprite->texture.texWidth / spriteWidth) / 256));
+		for(int y = drawStartY; y < drawEndY; y++){
+			int d  = (y-viewOffset) * 256 - SH * 128  + spriteHeight * 128;
+			int texY = (((d * sprite->texture.texHeight) / spriteHeight) / 256);
+			RGB color = {0,0,0};
+			int p = (texY * sprite->texture.texWidth + texX) * 3 + (sprite->mapVal * sprite->texture.texWidth * sprite->texture.texHeight * 3);
+			 if ((texY < 0 || texY >= sprite->texture.texHeight)){continue;}
+			color.r = sprite->texture.buffer[p];
+			color.g = sprite->texture.buffer[p+1];
+			color.b = sprite->texture.buffer[p+2];
+			if(color.r != 255 && color.g != 0 && color.b != 255)
+				pixel(x,y,&color);
+		}
 	}
 }
