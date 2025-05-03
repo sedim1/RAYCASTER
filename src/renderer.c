@@ -1,6 +1,6 @@
 #include "renderer.h"
 
-#define SPRITE_SCALE 50.0f
+#define SPRITE_SCALE 80.0f
 
 SDL_Window* window = NULL;
 SDL_Renderer* renderer = NULL;
@@ -208,7 +208,7 @@ void castRaysDDA(Map2D* m){
 		float hitX = player.x + rayDirX * perspDistWall;
 		float hitY = player.y + rayDirY * perspDistWall;
 		//zDepth[x] = distance(player.x,player.y,hitX,hitY);
-		zDepth[x] = perspDistWall * 100.0f;
+		zDepth[x] = perspDistWall * m->mapS;
 		int lineHeight = (int)(SH/perspDistWall);
 		int drawStart = (-lineHeight / 2 + SH / 2)+player.l;
 		if(drawStart < 0)drawStart = 0;
@@ -324,11 +324,9 @@ void DrawSprite2D(Sprite2D* sprite){
 	int drawEndX = screenX + spriteWidth/2;
 	if(drawEndX > SW) {drawEndX = SW;}
 	//Dibuja el sprite columna por columna, pixel por pixel
-	if (transformY <= 0 || transformY >= 450.0f) {return;} //No dibujar el sprite si se encuentra fuera de la pantalla
+	if (transformY <= 0 ) {return;} //No dibujar el sprite si se encuentra fuera de la pantalla
 	for(int x = drawStartX; x < drawEndX; x++){
 		int texX = ((int)((256 * (x - (-spriteWidth / 2 + screenX)) * sprite->texture.texWidth / spriteWidth) / 256));
-		//printf("dist from sprite %.2f\n", transformY);
-		//printf("dist from wall %.2f\n",zDepth[x]);
 		if(zDepth[x] < transformY) {continue;}
 		for(int y = drawStartY; y < drawEndY; y++){
 			int d  = (y-viewOffset) * 256 - SH * 128  + spriteHeight * 128;

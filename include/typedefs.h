@@ -7,16 +7,16 @@
 #include <math.h>
 #include <stdbool.h>
 #define RESOLUTION 1
-#define SW 186 * RESOLUTION //Pixeles en el ancho de pantalla logica
-#define SH 154 * RESOLUTION //Pixeles en altura de pantalla logica
-#define PIXELSCALE 4/RESOLUTION
+#define SW 156 * RESOLUTION //Pixeles en el ancho de pantalla logica
+#define SH 124 * RESOLUTION //Pixeles en altura de pantalla logica
+#define PIXELSCALE 8/RESOLUTION
 #define SCREEN_WIDTH (SW*PIXELSCALE) //Ajustar ancho de ventana en base al tamaño del pixel
 #define SCREEN_HEIGHT (SH*PIXELSCALE) //Ajustar altura de ventana en base al tamaño del pixel
 
 #define M_PI 3.14159265358979323846
 #define MAX 300
 
-#define FOV (60.0f)
+#define FOV (70.0f)
 #define FOV_FACTOR (tan(degToRad(FOV) / 2.0f))
 #define DOF 20
 #define ANGLE_STEP (FOV/SCREEN_WIDTH) * PIXELSCALE
