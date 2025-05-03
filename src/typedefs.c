@@ -37,3 +37,11 @@ void normalize(float* x,float *y){
 	float l = length(a,b);
 	(*x) = (*x)/l; (*y) = (*y)/l;
 }
+
+//----------------------------------
+VECTOR2I CartesianToCellCords(VECTOR2* A,int unit){
+	return (VECTOR2I){ (int)(A->x / unit), (int)(A->y / unit) };
+}
+VECTOR2 CellCordToCartesian(VECTOR2I* A,int unit){
+	return (VECTOR2){(float)A->x*unit + unit/2.0f,(float)A->y*unit + unit/2.0f};
+}

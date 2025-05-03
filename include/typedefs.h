@@ -6,6 +6,7 @@
 #include <string.h>
 #include <math.h>
 #include <stdbool.h>
+
 #define RESOLUTION 1
 #define SW 156 * RESOLUTION //Pixeles en el ancho de pantalla logica
 #define SH 124 * RESOLUTION //Pixeles en altura de pantalla logica
@@ -25,6 +26,16 @@
 typedef struct{
 	int w,a,s,d,left,right,shift;
 }Keyboard;
+
+//Useful for cell Pos
+typedef struct{
+	int x;
+	int y;
+}VECTOR2I;
+
+typedef struct{
+	float x,y;
+}VECTOR2;
 
 typedef struct{
 	int posX;
@@ -55,7 +66,7 @@ typedef struct{
 }Map2D;
 
 typedef struct{
-	float x,y; //Posicion
+	VECTOR2 position; //Posicion
 	int z;
 	float a; //Angle
 	float dx,dy;
@@ -71,7 +82,7 @@ enum SpriteType{
 typedef struct{
 	enum SpriteType type;
 	bool on;
-	float x, y;
+	VECTOR2 position;
 	float z;
 	int mapVal;
 	TEXMAP texture;
@@ -82,4 +93,8 @@ float normalizeAngle(float angle);
 float distance(float x1,float y1,float x2,float y2);
 void normalize(float* x,float *y);
 float length(float x, float y);
+
+VECTOR2I CartesianToCellCords(VECTOR2* A,int unit);
+VECTOR2 CellCordToCartesian(VECTOR2I* A,int unit);
+
 #endif

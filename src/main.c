@@ -91,7 +91,6 @@ void Display(){
 	SDL_RenderClear(renderer); //Clear 
 	//Rendering logic goes here
 	castRaysDDA(&map);
-	//castRays(&map);
 	DrawSprite2D(&sprite);
 	SDL_RenderPresent(renderer); //Render the final image final image
 }

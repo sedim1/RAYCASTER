@@ -88,7 +88,7 @@ void loadSprite(Sprite2D* sprite,enum SpriteType type,int x, int y, int z,bool v
 		freeSprite(sprite);
 	}
 	sprite->type = type;
-	sprite->x = x; sprite->y = y; sprite->z = z;
+	sprite->position.x = x; sprite->position.y = y; sprite->z = z;
 	sprite->on = visible;
 	sprite->mapVal = atlas;
 	loadTexture(&sprite->texture,path);
