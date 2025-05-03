@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include <SDL2/SDL.h>
+#include <SDL3/SDL.h>
 #include "typedefs.h"
 #include "renderer.h"
 #include "loader.h"
@@ -45,14 +45,13 @@ bool Init(){
 	}
 
 	//Create window
-        window = SDL_CreateWindow("Raycaster",SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 
-			SCREEN_WIDTH, SCREEN_HEIGHT, 0);
+        window = SDL_CreateWindow("Raycaster",SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_RESIZABLE );
         if( window == NULL )
         {
             printf( "Window could not be created! SDL_Error: %s\n", SDL_GetError() ); return false;
         }
 	//Get window surface
-        renderer = SDL_CreateRenderer(window,-1,0);
+        renderer = SDL_CreateRenderer(window,NULL);
         if( renderer == NULL )
         {
             printf( "Window could not be created! SDL_Error: %s\n", SDL_GetError() ); return false;
@@ -96,7 +95,7 @@ void Display(){
 }
 
 void End(){
-	SDL_SetRelativeMouseMode(SDL_FALSE); 
+	//SDL_SetRelativeMouseMode(SDL_FALSE); 
 	SDL_DestroyWindow(window);
 	SDL_DestroyRenderer(renderer);
 	SDL_Quit();
@@ -109,29 +108,29 @@ void HandleEvents(){
 	SDL_Event e;
 	while(SDL_PollEvent(&e)){
 	switch(e.type){
-		case SDL_QUIT:
+		case SDL_EVENT_QUIT:
 			isRunning = false;
 			break;
-		case (SDL_MOUSEMOTION):
+		case (SDL_EVENT_MOUSE_MOTION):
 			mouse.deltaX = e.motion.xrel;
 			mouse.deltaY = e.motion.yrel;
 			mouse.motion = true;
 			break;
-		case SDL_KEYDOWN:
-			switch( e.key.keysym.sym ){
+		case SDL_EVENT_KEY_DOWN:
+			switch( e.key.key ){
 				case SDLK_ESCAPE:
 					isRunning = false;
 					break;
-				case SDLK_w:
+				case SDLK_W:
 					key.w = 1;
 					break;
-				case SDLK_s:
+				case SDLK_S:
 					key.s = 1;
 					break;
-				case SDLK_a:
+				case SDLK_A:
 					key.a = 1;
 					break;
-				case SDLK_d:
+				case SDLK_D:
 					key.d = 1;
 					break;
 				case SDLK_LEFT:
@@ -145,18 +144,18 @@ void HandleEvents(){
 					break;
 			}
 			break;
-		case SDL_KEYUP:
-			switch( e.key.keysym.sym ){
-				case SDLK_w:
+		case SDL_EVENT_KEY_UP:
+			switch( e.key.key ){
+				case SDLK_W:
 					key.w = 0;
 					break;
-				case SDLK_s:
+				case SDLK_S:
 					key.s = 0;
 					break;
-				case SDLK_a:
+				case SDLK_A:
 					key.a = 0;
 					break;
-				case SDLK_d:
+				case SDLK_D:
 					key.d = 0;
 					break;
 				case SDLK_LEFT:

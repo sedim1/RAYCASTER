@@ -2,7 +2,7 @@
 #define RENDERER_H
 
 #include "typedefs.h"
-#include <SDL2/SDL.h>
+#include <SDL3/SDL.h>
 
 //Funciones principales de dibujo
 void pixel(int x,int y, RGB* color);

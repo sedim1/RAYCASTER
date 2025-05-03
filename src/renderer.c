@@ -10,33 +10,33 @@ float zDepth[SW];
 
 void pixel(int x,int y, RGB* color){
 	if (x < 0 || x >= SW || y < 0 || y >= SH) return;
-	SDL_Rect pix = {x*PIXELSCALE,y*PIXELSCALE,PIXELSCALE,PIXELSCALE};
+	const SDL_FRect pix = {x*PIXELSCALE,y*PIXELSCALE,PIXELSCALE,PIXELSCALE};
 	SDL_SetRenderDrawColor(renderer,color->r,color->g,color->b,255);
 	SDL_RenderFillRect(renderer,&pix);
 }
 
 void pixelDDA(int x,int y, RGB* color){
-	if (x < 0 || x >= SCREEN_WIDTH || y < 0 || y >= SCREEN_HEIGHT) return;
+	/*if (x < 0 || x >= SCREEN_WIDTH || y < 0 || y >= SCREEN_HEIGHT) return;
 	SDL_SetRenderDrawColor(renderer,color->r,color->g,color->b,255);
-	SDL_RenderDrawPoint(renderer,x,y);
+	SDL_RenderDrawPoint(renderer,x,y);*/
 }
 
 
 void DDA(int x1,int y1,int x2,int y2,RGB* color){
-	int dx = x2 - x1, dy = y2 - y1;
+	/*int dx = x2 - x1, dy = y2 - y1;
 	int steps = abs(dx) > abs(dy) ? abs(dx) : abs(dy);
 	float xo = dx/(float)steps, yo = dy/(float)steps;
 	float x = (float)x1, y = (float)y1;
 	for(int i = 0; i < steps; i++){
 		pixel((int)x,(int)y,color);
 		x += xo; y += yo;
-	}
+	}*/
 }
 ////////////////////////////
 void DrawMap2D(Map2D* m){
 	for(int y = 0; y < m->mapHeight;y++){
 		for(int x = 0; x < m->mapWidth; x++ ){
-			SDL_Rect rect = {x*m->mapS/16 + 1,y*m->mapS/16 + 1,16,16};
+			SDL_FRect rect = {x*m->mapS/16 + 1,y*m->mapS/16 + 1,16,16};
 			if(m->walls[y][x] > 0){//Dibuja el muro
 				SDL_SetRenderDrawColor(renderer,255,255,255,255);
 			}
@@ -50,10 +50,9 @@ void DrawMap2D(Map2D* m){
 
 void DrawPlayer(){
 	RGB c1 = {255,255,0};
-	SDL_Rect p = {player.position.x/16,player.position.y/16,PIXELSCALE,PIXELSCALE};
+	SDL_FRect p = {player.position.x/16,player.position.y/16,PIXELSCALE,PIXELSCALE};
 	SDL_SetRenderDrawColor(renderer,c1.r,c1.g,c1.b,255);
 	SDL_RenderFillRect(renderer,&p);
-	SDL_RenderDrawLine(renderer,player.position.x/16 + PIXELSCALE/2,player.position.y/16 + PIXELSCALE/2,(player.position.x+player.dx*20)/16 + PIXELSCALE/2,(player.position.y+player.dy*20)/16 + PIXELSCALE/2);
 }
 
 void castRaysDDA(Map2D* m){

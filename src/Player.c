@@ -17,8 +17,9 @@ void PlayerInit(float x,float y, float angle){
 	player.dx = cos(degToRad(player.a)); player.dy = sin(degToRad(player.a));
 	player.planeX = -player.dy * FOV_FACTOR; player.planeY = player.dx * FOV_FACTOR;
 	player.l = 0;
-	SDL_SetRelativeMouseMode(SDL_TRUE);
-	SDL_ShowCursor(SDL_DISABLE);
+	//SDL_SetMouseRelativeMode(true);
+	SDL_SetWindowRelativeMouseMode(window,true);
+	SDL_HideCursor();
 }
 void PlayerUpdate(){ //Funcion que se llamara cada frame y llevara a cabo la logica del jugador
 	MovePlayer(&map);
@@ -71,7 +72,7 @@ void MovePlayer(Map2D* m){
 	if(isWalking){
 		tZ = 0.0f;
 		float frequency = (key.shift == 1) ? 999.0f : 500.0f;
-		float amplitude = (key.shift == 1) ? 7.0f : 6.0f;
+		float amplitude = (key.shift == 1) ? 3.0f : 6.0f;
 		player.z = -(amplitude * sin(degToRad(t)));
 		t += frequency * deltaTime; t = normalizeAngle(t);
 	}
