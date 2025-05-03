@@ -8,16 +8,16 @@
 #include <stdbool.h>
 
 #define RESOLUTION 1
-#define SW 156 * RESOLUTION //Pixeles en el ancho de pantalla logica
-#define SH 124 * RESOLUTION //Pixeles en altura de pantalla logica
-#define PIXELSCALE 8/RESOLUTION
+#define SW 196 * RESOLUTION //Pixeles en el ancho de pantalla logica
+#define SH 164 * RESOLUTION //Pixeles en altura de pantalla logica
+#define PIXELSCALE 4/RESOLUTION
 #define SCREEN_WIDTH (SW*PIXELSCALE) //Ajustar ancho de ventana en base al tamaño del pixel
 #define SCREEN_HEIGHT (SH*PIXELSCALE) //Ajustar altura de ventana en base al tamaño del pixel
 
 #define M_PI 3.14159265358979323846
 #define MAX 300
 
-#define FOV (70.0f)
+#define FOV (60.0f)
 #define FOV_FACTOR (tan(degToRad(FOV) / 2.0f))
 #define DOF 20
 #define ANGLE_STEP (FOV/SCREEN_WIDTH) * PIXELSCALE
@@ -67,11 +67,11 @@ typedef struct{
 
 typedef struct{
 	VECTOR2 position; //Posicion
-	int z;
+	float z; //Height
 	float a; //Angle
 	float dx,dy;
 	float planeX, planeY; //camera 
-	int l;
+	int l; //Loook up and down
 }Player;
 
 enum SpriteType{
@@ -90,6 +90,9 @@ typedef struct{
 
 float degToRad(float degrees);
 float normalizeAngle(float angle);
+float lerpF(float a, float b,float t);
+
+
 float distance(float x1,float y1,float x2,float y2);
 void normalize(float* x,float *y);
 float length(float x, float y);

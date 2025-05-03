@@ -45,3 +45,7 @@ VECTOR2I CartesianToCellCords(VECTOR2* A,int unit){
 VECTOR2 CellCordToCartesian(VECTOR2I* A,int unit){
 	return (VECTOR2){(float)A->x*unit + unit/2.0f,(float)A->y*unit + unit/2.0f};
 }
+
+float lerpF(float a, float b,float t){
+	return a + (b - a) * t;
+}

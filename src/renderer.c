@@ -115,9 +115,10 @@ void castRaysDDA(Map2D* m){
 		perspDistWall = (side == 0) ? (sideDistX - deltaDistX) : (sideDistY - deltaDistY);
 		zDepth[x] = perspDistWall * m->mapS;
 		int lineHeight = (int)(SH/perspDistWall);
-		int drawStart = (-lineHeight / 2 + SH / 2)+player.l;
+		int viewOffset = player.l + player.z;
+		int drawStart = (-lineHeight / 2 + SH / 2)+viewOffset;
 		if(drawStart < 0)drawStart = 0;
-		int drawEnd = (lineHeight / 2 + SH / 2)+player.l;
+		int drawEnd = (lineHeight / 2 + SH / 2)+viewOffset;
 		if(drawEnd >= SH)drawEnd = SH;
 		//Calcula las coordenadas uv
 		float mapVal = m->walls[mapY][mapX] - 1;
@@ -131,7 +132,7 @@ void castRaysDDA(Map2D* m){
 		if(side == 0 && rayDirX > 0) texX = m->wallTextures.texWidth - texX - 1;
 		if(side == 1 && rayDirY < 0) texX = m->wallTextures.texWidth - texX - 1;
 		double step = (1.0 * m->wallTextures.texWidth / lineHeight);
-		double texPos = ((drawStart - SH / 2 + lineHeight / 2) - player.l) * step;
+		double texPos = ((drawStart - SH / 2 + lineHeight / 2) - viewOffset) * step;
 		RGB color={0,0,0};
 		if(side == 0) {color.r = color.r * 0.5;}
 		//Dibuja el muro
@@ -158,7 +159,7 @@ void castRaysDDA(Map2D* m){
 		distWall = perspDistWall; distPlayer = 0.0f;
 		//Dibuja el suelo
 		for(int y = drawEnd; y < SH; y++){
-			currentDist = SH / (2.0 * (y - player.l) - SH);
+			currentDist = SH / (2.0 * (y - viewOffset) - SH);
 			double weight = (currentDist - distPlayer)/(distWall - distPlayer);
 			double currentFloorX = weight * floorWallX + (1.0 - weight) * playerTileX;
 			double currentFloorY = weight * floorWallY + (1.0 - weight) * playerTileY;
@@ -180,7 +181,7 @@ void castRaysDDA(Map2D* m){
 		//Dibuja el techo
 		if(drawStart > SH) {drawStart = SH;}
 		for(int y = drawStart-1; y >= 0; y--){
-			currentDist = SH / (SH - 2.0 * (y - player.l));
+			currentDist = SH / (SH - 2.0 * (y - viewOffset));
 			double weight = (currentDist - distPlayer)/(distWall - distPlayer);
 			double currentCeilingX = weight * floorWallX + (1.0 - weight) * playerTileX;
 			double currentCeilingY = weight * floorWallY + (1.0 - weight) * playerTileY;
@@ -214,7 +215,7 @@ void DrawSprite2D(Sprite2D* sprite){
 	double transformY = invDet * (-player.planeY * spriteX + player.planeX * spriteY); //Profundidad actual del objeto en el eje de projundidad
 	
 	int screenX = (int)((SW/2)*(1+transformX/transformY)); // posision en la pantalla en X
-	int viewOffset = player.l + sprite->z;
+	int viewOffset = (player.l + player.z) + sprite->z;
 	//height of sprite on the screen
 	int spriteHeight = abs((int)(SH/transformY*SPRITE_SCALE));
 	//Calcular desde donde empezara a dibujar cada columna del pixel
