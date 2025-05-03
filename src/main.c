@@ -59,7 +59,7 @@ bool Init(){
         }
 	PlayerInit(200.0f,200.0f,0.5f);
 	loadMap(&map,"Levels/map1.txt");
-	loadSprite(&sprite,STATIC,400.0,200.0,0.0,true,0,"Sprites/Sprite.ppm");
+	loadSprite(&sprite,STATIC,400.0,200.0,0.0,true,0,"Sprites/Sprite2.ppm");
 	return true;
 }
 
@@ -93,8 +93,6 @@ void Display(){
 	castRaysDDA(&map);
 	//castRays(&map);
 	DrawSprite2D(&sprite);
-	DrawMap2D(&map);
-	DrawPlayer();
 	SDL_RenderPresent(renderer); //Render the final image final image
 }
 
