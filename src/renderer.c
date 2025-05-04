@@ -8,6 +8,14 @@ extern Player player;
 
 float zDepth[SW];
 
+float MAX_FOG_DIST = 200.0f;
+RGB ambient = {255,68,0};
+//RGB ambient = {255,0,0};
+
+RGB multiplyColor(RGB*c1,RGB*c2){
+	return ((RGB){(unsigned char)((c1->r*c2->r)/255),(unsigned char)((c1->g*c2->g)/255),(unsigned char)((c1->b*c2->b)/255)});
+}
+
 void pixel(int x,int y, RGB* color){
 	if (x < 0 || x >= SW || y < 0 || y >= SH) return;
 	const SDL_FRect pix = {x*PIXELSCALE,y*PIXELSCALE,PIXELSCALE,PIXELSCALE};
@@ -54,6 +62,19 @@ void DrawPlayer(){
 	SDL_SetRenderDrawColor(renderer,c1.r,c1.g,c1.b,255);
 	SDL_RenderFillRect(renderer,&p);
 }
+
+
+RGB fogFactor(RGB* diffuse,RGB* fogColor, float distance){
+	RGB fog;
+	float weight = (distance)/MAX_FOG_DIST;
+	if(weight > 1.0f) {weight = 1.0f;}
+	if(weight < 0.0f) {weight = 0.0f;}
+	fog.r = (unsigned char)(((1.0f-weight)*diffuse->r+weight*fogColor->r));
+	fog.g = (unsigned char)(((1.0f-weight)*diffuse->g+weight*fogColor->g));
+	fog.b = (unsigned char)(((1.0f-weight)*diffuse->b+weight*fogColor->b));
+	return fog;
+}
+
 
 void castRaysDDA(Map2D* m){
 	for(int x = 0; x < SW; x++){
@@ -111,10 +132,11 @@ void castRaysDDA(Map2D* m){
 			else
 			{hit = true;}
 		}
+
+		int viewOffset = player.l + player.z;
 		perspDistWall = (side == 0) ? (sideDistX - deltaDistX) : (sideDistY - deltaDistY);
 		zDepth[x] = perspDistWall * m->mapS;
 		int lineHeight = (int)(SH/perspDistWall);
-		int viewOffset = player.l + player.z;
 		int drawStart = (-lineHeight / 2 + SH / 2)+viewOffset;
 		if(drawStart < 0)drawStart = 0;
 		int drawEnd = (lineHeight / 2 + SH / 2)+viewOffset;
@@ -143,6 +165,8 @@ void castRaysDDA(Map2D* m){
 			color.r = m->wallTextures.buffer[p+0] * shade;
 			color.g = m->wallTextures.buffer[p+1] * shade;
 			color.b = m->wallTextures.buffer[p+2] * shade;
+			color = multiplyColor(&color,&ambient);
+			color = fogFactor(&color,&((RGB){0, 0, 0}),zDepth[x]);
 			pixel(x,y,&color);
 		}
 		//Dibuja el suelo
@@ -156,6 +180,7 @@ void castRaysDDA(Map2D* m){
 		else { drawEnd += 1;}
 
 		distWall = perspDistWall; distPlayer = 0.0f;
+		float dist = 0.0f;
 		//Dibuja el suelo
 		for(int y = drawEnd; y < SH; y++){
 			currentDist = SH / (2.0 * (y - viewOffset) - SH);
@@ -170,9 +195,11 @@ void castRaysDDA(Map2D* m){
 				int floorMapVal = m->floor[iFy][iFx] - 1;
 				if(floorMapVal >= 0){
 					int pf = (floorTexY * m->floorTextures.texWidth + floorTexX) * 3 +  (floorMapVal * m->floorTextures.texWidth * m->floorTextures.texWidth * 3);
-					color.r = m->floorTextures.buffer[pf+0] * 0.7;
-					color.g = m->floorTextures.buffer[pf+1] * 0.7;
-					color.b = m->floorTextures.buffer[pf+2] * 0.7;
+					color.r = m->floorTextures.buffer[pf+0] * 0.7f;
+					color.g = m->floorTextures.buffer[pf+1] * 0.7f;
+					color.b = m->floorTextures.buffer[pf+2] * 0.7f;
+					color = multiplyColor(&color,&ambient);
+					color = fogFactor(&color,&((RGB){0,0,0}),currentDist*m->mapS);
 					pixel(x,y,&color);
 				}
 			}
@@ -192,9 +219,11 @@ void castRaysDDA(Map2D* m){
 				int ceilingMapVal = m->ceiling[iCy][iCx] - 1;
 				if(ceilingMapVal >= 0){
 					int pc = (ceilingTexY * m->ceilingTextures.texWidth + ceilingTexX) * 3 +  (ceilingMapVal * m->ceilingTextures.texWidth * m->ceilingTextures.texWidth * 3);
-					color.r = m->ceilingTextures.buffer[pc+0] * 0.7;
-					color.g = m->ceilingTextures.buffer[pc+1] * 0.7;
-					color.b = m->ceilingTextures.buffer[pc+2] * 0.7;
+					color.r = m->ceilingTextures.buffer[pc+0] * 0.7f;
+					color.g = m->ceilingTextures.buffer[pc+1] * 0.7f;
+					color.b = m->ceilingTextures.buffer[pc+2] * 0.7f;
+					color = multiplyColor(&color,&ambient);
+					color = fogFactor(&color,&((RGB){0, 0, 0}),currentDist*m->mapS);
 					pixel(x,y,&color);
 				}
 			}
@@ -242,8 +271,10 @@ void DrawSprite2D(Sprite2D* sprite){
 			color.r = sprite->texture.buffer[p];
 			color.g = sprite->texture.buffer[p+1];
 			color.b = sprite->texture.buffer[p+2];
-			if(color.r != 255 && color.g != 0 && color.b != 255)
-				pixel(x,y,&color);
+			if(color.r == 255 && color.g == 0 && color.b == 255) { continue;}
+			color = multiplyColor(&color,&ambient);
+			color = fogFactor(&color,&((RGB){0, 0, 0}),transformY);
+			pixel(x,y,&color);
 		}
 	}
 }

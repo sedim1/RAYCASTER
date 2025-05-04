@@ -7,6 +7,8 @@ extern Keyboard key;
 extern Mouse mouse;
 extern float deltaTime;
 extern Map2D map;
+extern float MAX_FOG_DIST;
+extern float ambient;
 float pSpeed = 150.0f;
 float rotSpeed = 50.0f;
 bool motion = false; float mouseSensitivity = 1.0f;
@@ -45,8 +47,11 @@ void MovePlayer(Map2D* m){
 	int xo = (player.dx < 0) ? -20 : 20 ; int yo = (player.dy < 0) ? -20 : 20 ;
 	int addX = (int)((player.position.x+xo)/m->mapS); int addY = (int)((player.position.y+yo)/m->mapS);
 	int subX = (int)((player.position.x-xo)/m->mapS); int subY = (int)((player.position.y-yo)/m->mapS);
-	float n = (key.w != 1 || key.s != 1) ? 1.0f : 0.5f;
-	if(key.shift == 1) { pSpeed = 150;} else {pSpeed = 100.0f;}
+	int sladdX = (int)((player.position.x-yo)/m->mapS);  int sladdY = (int)((player.position.y+xo)/m->mapS);
+	int slsubX = (int)((player.position.x+yo)/m->mapS);  int slsubY = (int)((player.position.y-xo)/m->mapS);
+	if(key.shift == 1) { pSpeed = 160;} else {pSpeed = 100.0f;}
+	if((key.w == 1||key.s == 1) && (key.a==1||key.d==1)) {pSpeed=pSpeed * 0.7f;}
+	//Moving normally
 	if(key.w == 1){ 
 		if(m->walls[mapY][addX] < 1){ player.position.x += player.dx * pSpeed * deltaTime;}
 		if(m->walls[addY][mapX] < 1){ player.position.y += player.dy * pSpeed * deltaTime;}
@@ -57,23 +62,24 @@ void MovePlayer(Map2D* m){
 		if(m->walls[subY][mapX] < 1){ player.position.y -= player.dy * pSpeed * deltaTime;}
 		isWalking = true;
 	}
-	 addX = (int)((player.position.x-yo)/m->mapS);  addY = (int)((player.position.y+xo)/m->mapS);
-	 subX = (int)((player.position.x+yo)/m->mapS);  subY = (int)((player.position.y-xo)/m->mapS);
-	 if(key.d == 1){
-                if(m->walls[mapY][addX] < 1){ (player.position.x -= player.dy * pSpeed*n * deltaTime);}
-                if(m->walls[addY][mapX] < 1){ (player.position.y += player.dx * pSpeed*n * deltaTime);}
+	//strafing
+	if(key.d == 1){
+                if(m->walls[mapY][sladdX] < 1){ (player.position.x -= player.dy * pSpeed * deltaTime);}
+                if(m->walls[sladdY][mapX] < 1){ (player.position.y += player.dx * pSpeed * deltaTime);}
 		isWalking = true;
         }
         if(key.a == 1){ 
-        	if(m->walls[mapY][subX] < 1){ player.position.x += (player.dy * pSpeed*n * deltaTime);}
-        	if(m->walls[subY][mapX] < 1){ player.position.y -= (player.dx * pSpeed*n * deltaTime);}
+        	if(m->walls[mapY][slsubX] < 1){ player.position.x += (player.dy * pSpeed * deltaTime);}
+        	if(m->walls[slsubY][mapX] < 1){ player.position.y -= (player.dx * pSpeed * deltaTime);}
 		isWalking = true;
         }
+
+	//Camera motion
 	if(isWalking){
 		tZ = 0.0f;
-		float frequency = (key.shift == 1) ? 999.0f : 500.0f;
+		float frequency = (key.shift == 1) ? 1299.0f : 500.0f;
 		float amplitude = (key.shift == 1) ? 3.0f : 6.0f;
-		player.z = -(amplitude * sin(degToRad(t)));
+		player.z = (amplitude * sin(degToRad(t)));
 		t += frequency * deltaTime; t = normalizeAngle(t);
 	}
 	else{

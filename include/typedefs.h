@@ -8,8 +8,8 @@
 #include <stdbool.h>
 
 #define RESOLUTION 1
-#define SW 196 * RESOLUTION //Pixeles en el ancho de pantalla logica
-#define SH 164 * RESOLUTION //Pixeles en altura de pantalla logica
+#define SW 256 * RESOLUTION //Pixeles en el ancho de pantalla logica
+#define SH 224 * RESOLUTION //Pixeles en altura de pantalla logica
 #define PIXELSCALE 4/RESOLUTION
 #define SCREEN_WIDTH (SW*PIXELSCALE) //Ajustar ancho de ventana en base al tamaño del pixel
 #define SCREEN_HEIGHT (SH*PIXELSCALE) //Ajustar altura de ventana en base al tamaño del pixel
@@ -84,7 +84,8 @@ typedef struct{
 	bool on;
 	VECTOR2 position;
 	float z;
-	int mapVal;
+	float a;
+	int mapVal; //This will be used for a billboard (8 sprites per image)
 	TEXMAP texture;
 }Sprite2D;
 
