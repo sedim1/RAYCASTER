@@ -162,9 +162,9 @@ void castRaysDDA(Map2D* m){
 			int texY = (int)texPos & (m->wallTextures.texWidth - 1);
 			texPos += step;
 			int p = (texY * m->wallTextures.texWidth + texX) * 3 + (mapVal * m->wallTextures.texWidth * m->wallTextures.texWidth * 3);
-			color.r = m->wallTextures.buffer[p+0] * shade;
-			color.g = m->wallTextures.buffer[p+1] * shade;
-			color.b = m->wallTextures.buffer[p+2] * shade;
+			color.r = m->wallTextures.buffer[p+0];
+			color.g = m->wallTextures.buffer[p+1];
+			color.b = m->wallTextures.buffer[p+2];
 			color = multiplyColor(&color,&ambient);
 			color = fogFactor(&color,&((RGB){0, 0, 0}),zDepth[x]);
 			pixel(x,y,&color);
@@ -195,9 +195,9 @@ void castRaysDDA(Map2D* m){
 				int floorMapVal = m->floor[iFy][iFx] - 1;
 				if(floorMapVal >= 0){
 					int pf = (floorTexY * m->floorTextures.texWidth + floorTexX) * 3 +  (floorMapVal * m->floorTextures.texWidth * m->floorTextures.texWidth * 3);
-					color.r = m->floorTextures.buffer[pf+0] * 0.7f;
-					color.g = m->floorTextures.buffer[pf+1] * 0.7f;
-					color.b = m->floorTextures.buffer[pf+2] * 0.7f;
+					color.r = m->floorTextures.buffer[pf+0];
+					color.g = m->floorTextures.buffer[pf+1];
+					color.b = m->floorTextures.buffer[pf+2];
 					color = multiplyColor(&color,&ambient);
 					color = fogFactor(&color,&((RGB){0,0,0}),currentDist*m->mapS);
 					pixel(x,y,&color);
@@ -219,9 +219,9 @@ void castRaysDDA(Map2D* m){
 				int ceilingMapVal = m->ceiling[iCy][iCx] - 1;
 				if(ceilingMapVal >= 0){
 					int pc = (ceilingTexY * m->ceilingTextures.texWidth + ceilingTexX) * 3 +  (ceilingMapVal * m->ceilingTextures.texWidth * m->ceilingTextures.texWidth * 3);
-					color.r = m->ceilingTextures.buffer[pc+0] * 0.7f;
-					color.g = m->ceilingTextures.buffer[pc+1] * 0.7f;
-					color.b = m->ceilingTextures.buffer[pc+2] * 0.7f;
+					color.r = m->ceilingTextures.buffer[pc+0];
+					color.g = m->ceilingTextures.buffer[pc+1];
+					color.b = m->ceilingTextures.buffer[pc+2];
 					color = multiplyColor(&color,&ambient);
 					color = fogFactor(&color,&((RGB){0, 0, 0}),currentDist*m->mapS);
 					pixel(x,y,&color);
@@ -271,10 +271,11 @@ void DrawSprite2D(Sprite2D* sprite){
 			color.r = sprite->texture.buffer[p];
 			color.g = sprite->texture.buffer[p+1];
 			color.b = sprite->texture.buffer[p+2];
-			if(color.r == 255 && color.g == 0 && color.b == 255) { continue;}
-			color = multiplyColor(&color,&ambient);
-			color = fogFactor(&color,&((RGB){0, 0, 0}),transformY);
-			pixel(x,y,&color);
+			if(!(color.r == 255 && color.g == 0 && color.b == 255)) {
+				color = multiplyColor(&color,&ambient);
+				color = fogFactor(&color,&((RGB){0, 0, 0}),transformY);
+				pixel(x,y,&color);
+			}
 		}
 	}
 }

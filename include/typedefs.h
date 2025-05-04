@@ -9,7 +9,7 @@
 
 #define RESOLUTION 1
 #define SW 254 * RESOLUTION //Pixeles en el ancho de pantalla logica
-#define SH 180 * RESOLUTION //Pixeles en altura de pantalla logica
+#define SH 190 * RESOLUTION //Pixeles en altura de pantalla logica
 #define PIXELSCALE 4/RESOLUTION
 #define SCREEN_WIDTH (SW*PIXELSCALE) //Ajustar ancho de ventana en base al tamaño del pixel
 #define SCREEN_HEIGHT (SH*PIXELSCALE) //Ajustar altura de ventana en base al tamaño del pixel
@@ -65,15 +65,6 @@ typedef struct{
 	TEXMAP ceilingTextures;
 }Map2D;
 
-typedef struct{
-	VECTOR2 position; //Posicion
-	float z; //Height
-	float a; //Angle
-	float dx,dy;
-	float planeX, planeY; //camera 
-	int l; //Loook up and down
-}Player;
-
 enum SpriteType{
 	STATIC, //Sprite is single image
 	ANIMATED, //Sprite is animated
@@ -88,6 +79,16 @@ typedef struct{
 	int mapVal; //This will be used for a billboard (8 sprites per image)
 	TEXMAP texture;
 }Sprite2D;
+
+typedef struct{
+	VECTOR2 position; //Posicion
+	float z; //Height
+	float a; //Angle
+	float dx,dy;
+	float planeX, planeY; //camera 
+	int l; //Loook up and down
+}Player;
+
 
 float degToRad(float degrees);
 float normalizeAngle(float angle);

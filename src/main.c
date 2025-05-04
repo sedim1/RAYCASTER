@@ -26,6 +26,7 @@ extern Map2D map;
 extern Player player;
 extern Mouse mouse;
 extern float deltaTime;
+extern bool candleOn;
 Sprite2D sprite;
 int fps = 0;
 
@@ -91,6 +92,7 @@ void Display(){
 	//Rendering logic goes here
 	castRaysDDA(&map);
 	DrawSprite2D(&sprite);
+	DrawHand();
 	SDL_RenderPresent(renderer); //Render the final image final image
 }
 
@@ -99,6 +101,7 @@ void End(){
 	SDL_DestroyWindow(window);
 	SDL_DestroyRenderer(renderer);
 	SDL_Quit();
+	PlayerEnd();
 	freeMap(&map);
 	freeSprite(&sprite);
 	printf("Exiting\n");

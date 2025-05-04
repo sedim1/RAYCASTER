@@ -1,5 +1,4 @@
 #include "Player.h"
-#include "renderer.h"
 
 Player player;
 extern SDL_Window* window;
@@ -8,13 +7,15 @@ extern Mouse mouse;
 extern float deltaTime;
 extern Map2D map;
 extern float MAX_FOG_DIST;
-extern float ambient;
+extern RGB ambient;
 float pSpeed = 150.0f;
 float rotSpeed = 50.0f;
 bool motion = false; float mouseSensitivity = 1.0f;
 bool isWalking = false; float t = 0.0f, tZ = 0.0f;
 float FOV;
 float FOV_FACTOR;
+TEXMAP candle;
+bool candleOn = true;
 
 void PlayerInit(float x,float y, float angle){
 	player.position.x = x; player.position.y = y; player.a = normalizeAngle(angle);
@@ -23,10 +24,40 @@ void PlayerInit(float x,float y, float angle){
 	FOV_FACTOR = tan(degToRad(FOV) / 2.0f);
 	player.planeX = -player.dy * FOV_FACTOR; player.planeY = player.dx * FOV_FACTOR;
 	player.l = 0;
-	//SDL_SetMouseRelativeMode(true);
+	loadTexture(&candle,"Sprites/playerHand.ppm");
 	SDL_SetWindowRelativeMouseMode(window,true);
 	SDL_HideCursor();
 }
+
+void PlayerEnd(){
+	freeTexture(&candle);
+}
+
+void DrawHand(){
+	if(!candleOn){return;}
+	int xOffset=160, yOffset=60 + player.z, tx = 0, ty = 0;
+	for(int x = 0; x < candle.texWidth;x++){
+		ty = 0;
+		for(int y = 0; y < candle.texHeight;y++){
+			int p = (ty * candle.texWidth + tx) * 3;
+			RGB color;
+			color.r = candle.buffer[p];
+			color.g = candle.buffer[p+1];
+			color.b = candle.buffer[p+2];
+			if(!(color.r == 255 && color.g == 0 && color.b == 255)){
+				pixel(xOffset + x, yOffset + y,&color);
+			}
+			ty+=1;
+		}
+		tx += 1;
+	}
+}
+
+//Player rendering logic according to player view
+void PlayerDisplay(){
+	castRaysDDA(&map);
+}
+
 void PlayerUpdate(){ //Funcion que se llamara cada frame y llevara a cabo la logica del jugador
 	MovePlayer(&map);
 }
@@ -56,16 +87,14 @@ void MovePlayer(Map2D* m){
 	if(key.shift == 1) { pSpeed = 160;} else {pSpeed = 100.0f;}
 	if((key.w == 1||key.s == 1) && (key.a==1||key.d==1)) {pSpeed=pSpeed * 0.7f;}
 	if(key.left == 1) {
-		FOV -= 1.0f;
-		FOV_FACTOR = tan(degToRad(FOV) / 2.0f);
-		if(FOV < 30.0F) {FOV = 30.0f;}
-		player.planeX = -player.dy * FOV_FACTOR; player.planeY = player.dx * FOV_FACTOR;
+		ambient.r = 255; ambient.g=68; ambient.b=0;
+		MAX_FOG_DIST = 300.0f;
+		candleOn = true;
 	}
 	if(key.right == 1) {
-		FOV += 1.0f;
-		FOV_FACTOR = tan(degToRad(FOV) / 2.0f);
-		if(FOV > 90.0F) {FOV = 90.0f;}
-		player.planeX = -player.dy * FOV_FACTOR; player.planeY = player.dx * FOV_FACTOR;
+		ambient.r = 20; ambient.g=20; ambient.b=60;
+		MAX_FOG_DIST = 200.0f;
+		candleOn = false;
 	}
 	//Moving normally
 	if(key.w == 1){ 
