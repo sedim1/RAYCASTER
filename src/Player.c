@@ -13,10 +13,14 @@ float pSpeed = 150.0f;
 float rotSpeed = 50.0f;
 bool motion = false; float mouseSensitivity = 1.0f;
 bool isWalking = false; float t = 0.0f, tZ = 0.0f;
+float FOV;
+float FOV_FACTOR;
 
 void PlayerInit(float x,float y, float angle){
 	player.position.x = x; player.position.y = y; player.a = normalizeAngle(angle);
 	player.dx = cos(degToRad(player.a)); player.dy = sin(degToRad(player.a));
+	FOV = 90.0f;
+	FOV_FACTOR = tan(degToRad(FOV) / 2.0f);
 	player.planeX = -player.dy * FOV_FACTOR; player.planeY = player.dx * FOV_FACTOR;
 	player.l = 0;
 	//SDL_SetMouseRelativeMode(true);
@@ -51,6 +55,18 @@ void MovePlayer(Map2D* m){
 	int slsubX = (int)((player.position.x+yo)/m->mapS);  int slsubY = (int)((player.position.y-xo)/m->mapS);
 	if(key.shift == 1) { pSpeed = 160;} else {pSpeed = 100.0f;}
 	if((key.w == 1||key.s == 1) && (key.a==1||key.d==1)) {pSpeed=pSpeed * 0.7f;}
+	if(key.left == 1) {
+		FOV -= 1.0f;
+		FOV_FACTOR = tan(degToRad(FOV) / 2.0f);
+		if(FOV < 30.0F) {FOV = 30.0f;}
+		player.planeX = -player.dy * FOV_FACTOR; player.planeY = player.dx * FOV_FACTOR;
+	}
+	if(key.right == 1) {
+		FOV += 1.0f;
+		FOV_FACTOR = tan(degToRad(FOV) / 2.0f);
+		if(FOV > 90.0F) {FOV = 90.0f;}
+		player.planeX = -player.dy * FOV_FACTOR; player.planeY = player.dx * FOV_FACTOR;
+	}
 	//Moving normally
 	if(key.w == 1){ 
 		if(m->walls[mapY][addX] < 1){ player.position.x += player.dx * pSpeed * deltaTime;}
